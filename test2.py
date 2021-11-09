@@ -18,21 +18,13 @@ img1 = cv.resize(img1,(256,256))
 detector, matcher = init_feature('sift-flann')
 pool = ThreadPool(processes=cv.getNumberOfCPUs())
 kp1, desc1 = affine_detect(detector, img1, pool=pool)
-sift = cv.ORB_create(100)
-meta1, des1 = sift.detectAndCompute(np.uint8(img1), None)
+
 newk_list = []
 newd_list = []
 pts = cv.KeyPoint_convert(kp1)
 ptsx = pts[:,0]
 ptsy = pts[:,1]
-pts1 = cv.KeyPoint_convert(meta1)
-pts1x = pts1[:,0]
-pts1y = pts1[:,1]
-for i in range(len(ptsx)):
-    for j in range(len(pts1x)):
-        if (ptsx[i]==pts1x[j]) and (ptsy[i]==pts1y[j]):
-            newk_list.append(pts[i])
-            newd_list.append(desc1[i])
+
 co = cv.KeyPoint_convert(newk_list)
 
 import numpy as np
@@ -53,11 +45,11 @@ class Anagrams:
             if 'sw' in tree.__dict__:
                 self.list1=self.list1+tree.sw.points2
             if 'nw' in tree.__dict__:
-                self.get_point(tree.nw);
+                self.get_point(tree.nw)
             if 'ne' in tree.__dict__:
-                self.get_point(tree.ne);
+                self.get_point(tree.ne)
             if 'se' in tree.__dict__:
-                self.get_point(tree.se);
+                self.get_point(tree.se)
             if 'sw' in tree.__dict__:
                 self.get_point(tree.sw)
             return self.list1
@@ -105,8 +97,6 @@ class Point:
 
     def __repr__(self):
         return '{}: {}'.format(str((self.x, self.y)), repr(self.payload))
-    def __str__(self):
-        return 'P({:.2f}, {:.2f})'.format(self.x, self.y)
 
     def distance_to(self, other):
         try:
@@ -127,10 +117,6 @@ class Rect:
     def __repr__(self):
         return str((self.west_edge, self.east_edge, self.north_edge,
                 self.south_edge))
-
-    def __str__(self):
-        return '({:.2f}, {:.2f}, {:.2f}, {:.2f})'.format(self.west_edge,
-                    self.north_edge, self.east_edge, self.south_edge)
 
     def contains(self, point):
         """Is point (a Point object or (x,y) tuple) inside this Rect?"""
@@ -283,7 +269,7 @@ for i in list2:
             point3.append(j)
             break
 
-ax.scatter([p.x for p in points ], [p.y for p in points], s=4)
+ax.scatter([p.x for p in point3 ], [p.y for p in point3], s=4)
 ax.set_xticks([])
 ax.set_yticks([])
 
@@ -298,6 +284,12 @@ for i in point3:
     b=eval(a)
     keypoints.append(b)
 
+# get the corresponding descriptor
+descriptor = []
+for i in keypoints:
+    descriptor.append(desc1[np.where(pts == i)])
+print(len(descriptor))
+print(len(keypoints))
 
 kp1 = cv.KeyPoint_convert(keypoints)
 
