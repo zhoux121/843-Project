@@ -252,17 +252,80 @@ def find_key_des(image):
     descriptor_1 = np.array([list(x) for x in descriptor_1], dtype=np.float32)
     return keypoints_1obj,descriptor_1
 
+'''
+detector, matcher = init_feature('sift-flann')
+toc = time.clock()
+raw_matches = matcher.knnMatch(descriptor_1, trainDescriptors = descriptor_2, k = 2) #2
+p1, p2, kp_pairs = filter_matches(keypoints_1, keypoints_2, raw_matches)
+H, status = cv.findHomography(p1, p2, cv.RANSAC, 5.0)
+tic = time.clock()
+print(toc - tic)
+print('%d / %d  inliers/matched' % (np.sum(status), len(status)))
+# do not draw outliers (there will be a lot of them)
+p_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
+explore_match('----', img1, img2, kp_pairs[:10], None, H)
+'''
+
+'''
+
+tic = time.clock()
+matches = bf.knnMatch(descriptor_1,descriptor_2,k=2)
+good = []
+for m, n in matches:
+    if m.distance < 0.5*n.distance:
+        good.append([m])
+toc = time.clock()
+print(toc - tic)
+print(len(matches))
+img3 = cv.drawMatchesKnn(img1,keypoints_1,img2,keypoints_2,matches[:10], None,flags=2)
+
+plt.imshow(img3),plt.show()
+'''
+'''
+detector, matcher = init_feature('sift-flann')
+pool = ThreadPool(processes=cv.getNumberOfCPUs())
+kp1, desc1 = affine_detect(detector, img1, pool=pool)
+kp2, desc2 = affine_detect(detector, img2, pool=pool)
+print(len(kp1))
+print(len(kp2))
+
+
+bf = cv.BFMatcher()
+#matches = bf.match(desc1,desc2)
+tic = time.clock()
+matches = bf.knnMatch(desc1,desc2,k=2)
+good = []
+for m, n in matches:
+    if m.distance < 0.5*n.distance:
+        good.append([m])
+toc1 = time.clock()
+print(toc1 - tic)
+print(len(matches))
+img3 = cv.drawMatchesKnn(img1,kp1,img2,kp2,matches[:10], None,flags=2)
+tic1 = time.clock()
+raw_matches = matcher.knnMatch(desc1, trainDescriptors = desc2, k = 2) #2
+p1, p2, kp_pairs = filter_matches(kp1, kp2, raw_matches)
+H, status = cv.findHomography(p1, p2, cv.RANSAC, 5.0)
+print('%d / %d  inliers/matched' % (np.sum(status), len(status)))
+# do not draw outliers (there will be a lot of them)
+p_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
+explore_match('----', img1, img2, kp_pairs[:10], None, H)
+
+plt.imshow(img3),plt.show()
+'''
+
 keypoints_1,descriptor_1 = find_key_des('1.png')
 keypoints_2,descriptor_2 = find_key_des('2.png')
 img1 = cv.imread('1.png')
 img2 = cv.imread('2.png')
 #feature matching
-bf = cv.BFMatcher(cv.NORM_L1, crossCheck=True)
-matches = bf.match(descriptor_1,descriptor_2)
 tic = time.clock()
-matches = sorted(matches, key = lambda x:x.distance)
+bf = cv.BFMatcher(cv.NORM_L2, crossCheck=True)
+matches = bf.match(descriptor_1,descriptor_2)
 toc = time.clock()
 print(toc - tic)
+matches = sorted(matches, key = lambda x:x.distance)
+
 print(len(matches))
 img3 = cv.drawMatches(img1,keypoints_1,img2,keypoints_2,matches, None,flags=2)
 
