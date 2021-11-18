@@ -1,15 +1,11 @@
 from test import affine_detect
 from find_obj import init_feature, filter_matches, explore_match
+
 from multiprocessing.pool import ThreadPool
-import cv2 as cv
-import sys, getopt
 from matplotlib import pyplot as plt
-import time
 import numpy as np
-from matplotlib import gridspec
+import cv2 as cv
 import time
-import numpy as np
-import math
 
 class Anagrams:
     def __init__(self, x):
@@ -213,7 +209,6 @@ def find_key_des(image):
     pool = ThreadPool(processes=cv.getNumberOfCPUs())
     kp1, desc1 = affine_detect(detector, img1, pool=pool)
 
-    DPI = 72
     width, height = 640,480
 
     pts1 = cv.KeyPoint_convert(kp1)
@@ -267,7 +262,11 @@ explore_match('----', img1, img2, kp_pairs[:10], None, H)
 '''
 
 '''
-
+keypoints_1,descriptor_1 = find_key_des('../img/1.png')
+keypoints_2,descriptor_2 = find_key_des('../img/2.png')
+img1 = cv.imread('../img/1.png')
+img2 = cv.imread('../img/2.png')
+bf = cv.BFMatcher()
 tic = time.clock()
 matches = bf.knnMatch(descriptor_1,descriptor_2,k=2)
 good = []
@@ -282,6 +281,8 @@ img3 = cv.drawMatchesKnn(img1,keypoints_1,img2,keypoints_2,matches[:10], None,fl
 plt.imshow(img3),plt.show()
 '''
 '''
+img1 = cv.imread('../img/1.png')
+img2 = cv.imread('../img/2.png')
 detector, matcher = init_feature('sift-flann')
 pool = ThreadPool(processes=cv.getNumberOfCPUs())
 kp1, desc1 = affine_detect(detector, img1, pool=pool)
@@ -309,15 +310,16 @@ H, status = cv.findHomography(p1, p2, cv.RANSAC, 5.0)
 print('%d / %d  inliers/matched' % (np.sum(status), len(status)))
 # do not draw outliers (there will be a lot of them)
 p_pairs = [kpp for kpp, flag in zip(kp_pairs, status) if flag]
-explore_match('----', img1, img2, kp_pairs[:10], None, H)
+explore_match('----', img1[:,:,0], img2[:,:,0], kp_pairs[:10], None, H)
 
 plt.imshow(img3),plt.show()
 '''
 
-keypoints_1,descriptor_1 = find_key_des('1.png')
-keypoints_2,descriptor_2 = find_key_des('2.png')
-img1 = cv.imread('1.png')
-img2 = cv.imread('2.png')
+
+keypoints_1,descriptor_1 = find_key_des('../img/1.png')
+keypoints_2,descriptor_2 = find_key_des('../img/2.png')
+img1 = cv.imread('../img/1.png')
+img2 = cv.imread('../img/2.png')
 #feature matching
 tic = time.clock()
 bf = cv.BFMatcher(cv.NORM_L2, crossCheck=True)

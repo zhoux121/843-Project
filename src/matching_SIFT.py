@@ -2,8 +2,9 @@ import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt
 import time
-img1 = cv.imread('1.png')          # queryImage
-img2 = cv.imread('2.png') # trainImage
+
+img1 = cv.imread('../img/1.png') # queryImage
+img2 = cv.imread('../img/2.png') # trainImage
 
 # Initiate SIFT detector
 sift = cv.xfeatures2d.SIFT_create()
@@ -21,7 +22,7 @@ tic1 = time.clock()
 matches = bf.knnMatch(des1,des2,k=2)
 good = []
 for m, n in matches:
-    if m.distance < 0.1*n.distance:
+    if m.distance < 0.75 * n.distance:
         good.append([m])
 toc1 = time.clock()
 print(toc1-tic1)

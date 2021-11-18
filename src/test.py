@@ -9,7 +9,8 @@ import itertools as it
 from multiprocessing.pool import ThreadPool
 
 # local modules
-from common import Timer
+from threading import Timer
+#from common import Timer
 from find_obj import init_feature, filter_matches, explore_match
 
 
